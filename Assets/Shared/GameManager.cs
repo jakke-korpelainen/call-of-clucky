@@ -20,9 +20,29 @@ public class GameManager
                 _instance = new GameManager();
                 _instance.gameObject = new GameObject(GameObjectName);
                 _instance.gameObject.AddComponent<InputController>();
+                _instance.gameObject.AddComponent<Timer>();
+                _instance.gameObject.AddComponent<Respawner>();
             }
 
             return _instance;
+        }
+    }
+
+    private Respawner _respawner;
+    public Respawner Respawner
+    {
+        get
+        {
+            return _respawner ?? (_respawner = gameObject.GetComponent<Respawner>());
+        }
+    }
+
+    private Timer _timer;
+    public Timer Timer
+    {
+        get
+        {
+            return _timer ?? (_timer = gameObject.GetComponent<Timer>());
         }
     }
 
@@ -31,10 +51,7 @@ public class GameManager
     {
         get
         {
-            if (_inputController == null)
-                _inputController = gameObject.GetComponent<InputController>();
-
-            return _inputController;
+            return _inputController ?? (_inputController = gameObject.GetComponent<InputController>());
         }
     }
 

@@ -10,10 +10,21 @@ public class Player : MonoBehaviour {
     {
         public Vector2 Damping;
         public Vector2 Sensitivity;
+        public bool LockMouse;
     }
 
     [SerializeField]
-    float speed;
+    float crouchSpeed;
+
+    [SerializeField]
+    float walkSpeed;
+
+    [SerializeField]
+    float runSpeed;
+
+    [SerializeField]
+    float sprintSpeed;
+
     [SerializeField]
     MouseInput mouseControl;
 
@@ -44,17 +55,44 @@ public class Player : MonoBehaviour {
     void Awake () {
         playerInput = GameManager.Instance.InputController;
         GameManager.Instance.LocalPlayer = this;
+
+        if (mouseControl.LockMouse)
+        {
+            Cursor.visible = false;
+            Cursor.lockState = CursorLockMode.Locked;
+        }
     }
 	
-	void Update () {
-        Vector2 direction = new Vector2(playerInput.Vertical * speed, playerInput.Horizontal * speed);
-        MoveController.Move(direction);
+	void Update ()
+    {
+        Move();
+        LookAround();
+    }
 
+    private void LookAround()
+    {
         mouseInput.x = Mathf.Lerp(mouseInput.x, playerInput.MouseInput.x, 1f / mouseControl.Damping.x);
         mouseInput.y = Mathf.Lerp(mouseInput.y, playerInput.MouseInput.y, 1f / mouseControl.Damping.y);
 
         transform.Rotate(Vector3.up * mouseInput.x * mouseControl.Sensitivity.x);
 
         Crosshair.LookHeight(mouseInput.y * mouseControl.Sensitivity.y);
+    }
+
+    void Move()
+    {
+        float moveSpeed = runSpeed;
+
+        if (playerInput.IsSprinting)
+            moveSpeed = sprintSpeed;
+
+        if (playerInput.IsWalking)
+            moveSpeed = walkSpeed;
+
+        if (playerInput.IsCrouched)
+            moveSpeed = crouchSpeed;
+
+        Vector2 direction = new Vector2(playerInput.Vertical * moveSpeed, playerInput.Horizontal * moveSpeed);
+        MoveController.Move(direction);
     }
 }
